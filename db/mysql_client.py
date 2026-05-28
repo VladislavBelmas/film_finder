@@ -47,5 +47,5 @@ class MySql:
             return
 
         if not isinstance(params, Iterable) or isinstance(params, str):
-            raise ValueError("Должно быть итерируемым и не строкой")
+            raise TypeError("Должно быть итерируемым и не строкой")
 
