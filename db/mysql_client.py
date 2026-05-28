@@ -40,6 +40,10 @@ class MySql:
         self.connection.close()
 
 
+    def ping(self):
+        self.connection.ping(reconnect=True)
+
+
     @staticmethod
     def _params_check(params):
         """
