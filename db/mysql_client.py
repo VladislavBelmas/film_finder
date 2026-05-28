@@ -1,5 +1,4 @@
 import pymysql
-from collections.abc import Iterable
 
 
 class MySql:
