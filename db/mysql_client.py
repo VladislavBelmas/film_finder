@@ -46,6 +46,6 @@ class MySql:
         if params is None:
             return
 
-        if not isinstance(params, Iterable) or isinstance(params, str):
-            raise TypeError("Должно быть итерируемым и не строкой")
+        if not isinstance(params, (tuple, list)):
+            raise TypeError("Параметры должны быть tuple или list")
 
