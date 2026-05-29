@@ -1,7 +1,8 @@
 import pymysql
-
+from film_logger import logger_decorator
 
 class MySql:
+    @logger_decorator
     def __init__(self, config):
         self.connection = pymysql.connect(**config)
 
@@ -14,6 +15,7 @@ class MySql:
         self.close()
 
 
+    @logger_decorator
     def select(self, query, params=None):
         """
         Выполняет SQL запрос.
@@ -33,13 +35,14 @@ class MySql:
             return cursor.fetchall()
 
 
+    @logger_decorator
     def close(self):
         """
         Закрывает соединение с базой данных.
         """
         self.connection.close()
 
-
+    @logger_decorator
     def ping(self):
         self.connection.ping(reconnect=True)
 
