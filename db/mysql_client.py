@@ -42,7 +42,7 @@ class MySql:
         """
         self.connection.close()
 
-    @logger_decorator
+
     def ping(self):
         self.connection.ping(reconnect=True)
 

@@ -16,7 +16,7 @@ class MongoDB:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
 
-    @logger_decorator
+
     def ping(self):
         return self.client.admin.command("ping")
 
