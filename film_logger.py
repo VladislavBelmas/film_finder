@@ -22,6 +22,7 @@ def logger_decorator(func):
             return result
 
         except Exception as e:
-            logger.error(f"Ошибка в {func.__name__}: {e}")
+            logger.error(f"Ошибка в {func.__name__}: {e}", exc_info=True)
+            raise
 
-    return wrapper()
+    return wrapper
