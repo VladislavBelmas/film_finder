@@ -1,5 +1,6 @@
 import logging
 import functools
+import pymysql
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,14 +16,24 @@ logger = logging.getLogger(__name__)
 def logger_decorator(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-
         try:
             result = func(*args, **kwargs)
             logger.info(f"{func.__name__} работает штатно")
             return result
-
         except Exception as e:
             logger.error(f"Ошибка в {func.__name__}: {e}", exc_info=True)
             raise
-
     return wrapper
+
+
+def db_error_handler(default_return=None):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except pymysql.OperationalError:
+                print("База данных временно недоступна")
+                return default_return
+        return wrapper
+    return decorator
