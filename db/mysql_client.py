@@ -18,15 +18,11 @@ class MySql:
     @logger_decorator
     def select(self, query, params=None):
         """
-        Выполняет SQL запрос.
-
-        Если запрос возвращает данные (например SELECT),
-        возвращает результат fetchall().
+        Выполняет SQL запрос SELECT.
 
         :param query: SQL запрос
-        :param params: параметры SQL запроса
-        :return:
-             список строк результата
+        :param params: параметры SQL запроса (tuple, list или dict)
+        :return: список строк результата
         """
         self._params_check(params)
 
@@ -40,12 +36,16 @@ class MySql:
         """
         Закрывает соединение с базой данных.
         """
-        self.connection.close()
+        if self.connection.open:
+            self.connection.close()
 
 
     def ping(self):
-        self.connection.ping(reconnect=True)
-
+        try:
+            self.connection.ping(reconnect=True)
+            return True
+        except Exception:
+            return False
 
     @staticmethod
     def _params_check(params):
@@ -53,13 +53,12 @@ class MySql:
         Проверяет корректность параметров SQL запроса.
 
         :param params: параметры SQL запроса
-        :raises ValueError:
-            если params не является iterable
-            или является строкой
+        :raises TypeError:
+            если params не является tuple, list или dict
         """
         if params is None:
             return
 
-        if not isinstance(params, (tuple, list)):
-            raise TypeError("Параметры должны быть tuple или list")
+        if not isinstance(params, (tuple, list, dict)):
+            raise TypeError("Параметры должны быть tuple, list или dict")
 
