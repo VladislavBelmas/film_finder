@@ -34,7 +34,11 @@ class MongoDB:
 
     @logger_decorator
     def log(self, doc):
-        return self.collection.insert_one(doc)
+        try:
+            self.collection.insert_one(doc)
+        except Exception:
+            pass
+
 
     @logger_decorator
     def get_logs(self, filter_query=None, limit=100):
