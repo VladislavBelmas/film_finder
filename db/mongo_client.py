@@ -1,5 +1,4 @@
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure
 from film_logger import logger_decorator
 
 class MongoDB:
@@ -15,16 +14,7 @@ class MongoDB:
 
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.is_connected():
-            self.close()
-
-
-    def is_connected(self):
-        try:
-            self._ping()
-            return True
-        except ConnectionFailure:
-            return False
+        self.close()
 
 
     @logger_decorator
@@ -46,6 +36,3 @@ class MongoDB:
             filter_query = {}
         return list(self.collection.find(filter_query).limit(limit).sort("_id", -1))
 
-
-    def _ping(self):
-        return self.client.admin.command("ping")
