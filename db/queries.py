@@ -1,4 +1,4 @@
-CATEGORIES = """SELECT name FROM category"""
+CATEGORIES = """SELECT name FROM category ORDER BY name"""
 
 MIN_FILM_YEAR = """SELECT MIN(release_year) AS min_year FROM film"""
 
@@ -11,9 +11,10 @@ FILMS = """
         ON f.film_id = fc.film_id
         JOIN category c 
         ON fc.category_id = c.category_id
-        WHERE f.title LIKE %s AND  f.release_year BETWEEN %s AND %s 
+        WHERE f.title LIKE %s AND f.release_year BETWEEN %s AND %s 
         GROUP BY f.film_id
-        LIMIT 10 OFFSET %s
+        ORDER BY f.title
+        LIMIT %s OFFSET %s
         """
 
 FILMS_SPECIFIC_YEAR  = """
@@ -25,6 +26,19 @@ FILMS_SPECIFIC_YEAR  = """
                        ON fc.category_id = c.category_id
                        WHERE f.title LIKE %s AND f.release_year = %s 
                        GROUP BY f.film_id 
-                       LIMIT 10 OFFSET %s
+                       ORDER BY f.title
+                       LIMIT %s OFFSET %s
                        """
 
+FILMS_BY_CATEGORY = """
+                    
+
+
+            
+                    """
+
+FILMS_BY_ACTOR = """
+
+
+
+                 """
