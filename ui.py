@@ -68,10 +68,10 @@ class Menu:
             limit = int(parameters[3]) if len(parameters) >= 4 else default_values["limit"]
         except ValueError:
             print("Неверный формат! Используются значения по умолчанию.")
-            min_year = default_values['min_year']
-            max_year = default_values['max_year']
-            page = default_values['page']
-            limit = default_values['limit']
+            min_year = default_values["min_year"]
+            max_year = default_values["max_year"]
+            page = default_values["page"]
+            limit = default_values["limit"]
 
         if min_year > max_year:
             print(f"min_year ({min_year}) > max_year ({max_year}). Приколов не будет, меняю местами.")
@@ -99,7 +99,7 @@ class Menu:
 
         print("\n--- Поиск фильмов по конкретному году ---")
         print(f"Доступные годы: {min_year_db} - {max_year_db}")
-        year = input("\nВведите год фильма (Enter для умолчания): ").strip()
+        year = input("\nВведите год фильма (Enter для значения по умолчанию): ").strip()
         title = input("Введите название фильма (Enter для всех): ").strip()
         print("\nДополнительные параметры (формат: page limit)")
         print("Пример: 1 10")
@@ -123,8 +123,8 @@ class Menu:
             limit = int(parameters[1]) if len(parameters) >= 2 else default_values["limit"]
         except ValueError:
             print("Неверный формат! Используются значения по умолчанию.")
-            page = default_values['page']
-            limit = default_values['limit']
+            page = default_values["page"]
+            limit = default_values["limit"]
 
         films = self.repo.get_films_by_specific_year(title, year, limit, page)
         print(f"\nИщем: '{title or 'все фильмы'}' ({year}), страница {page}")
