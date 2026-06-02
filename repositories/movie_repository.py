@@ -73,12 +73,9 @@ class MovieRepository:
         pass
 
 
-        return
 
 
     @db_error_handler(default_return=[])
     def get_films_by_actor(self):
         pass
 
-
-        return
