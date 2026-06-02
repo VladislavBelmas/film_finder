@@ -85,9 +85,6 @@ class Menu:
             print(f"max_year ({max_year}) вне диапазона. Используется {max_year_db}.")
             max_year = max_year_db
 
-        if min_year > max_year:
-            min_year, max_year = max_year, min_year
-
         films = self.repo.get_films(title, min_year, max_year, limit, page)
         print(f"\nИщем: '{title or 'все фильмы'}' ({min_year}-{max_year}), страница {page}")
         self.display_films(films)
