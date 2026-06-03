@@ -2,6 +2,8 @@ import pymysql
 from film_logger import logger_decorator
 
 class MySql:
+    """MySQL клиент с поддержкой context manager для управления соединением."""
+
     def __init__(self, config):
         self.config = config
 
@@ -33,14 +35,13 @@ class MySql:
 
     @logger_decorator
     def close(self):
-        """
-        Закрывает соединение с базой данных.
-        """
+        """Закрывает соединение с базой данных."""
         if self.connection is not None and  self.connection.open:
             self.connection.close()
 
 
     def ping(self):
+        """Проверяет активность соединения с базой данных."""
         if self.connection is None:
             return False
 
@@ -53,13 +54,6 @@ class MySql:
 
     @staticmethod
     def _params_check(params):
-        """
-        Проверяет корректность параметров SQL запроса.
-
-        :param params: параметры SQL запроса
-        :raises TypeError:
-            если params не является tuple, list или dict
-        """
         if params is None:
             return
 

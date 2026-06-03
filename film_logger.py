@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def logger_decorator(func):
+    """Декоратор для логирования выполнения функций и их ошибок."""
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -28,6 +29,12 @@ def logger_decorator(func):
 
 
 def db_error_handler(default_return=None):
+    """
+    Декоратор для обработки ошибок базы данных.
+
+    :param default_return: значение, возвращаемое при ошибке
+    :return: декоратор
+    """
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
