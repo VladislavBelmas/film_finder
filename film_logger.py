@@ -33,7 +33,7 @@ def db_error_handler(default_return=None):
         def wrapper(*args, **kwargs):
             try:
                 return func(*args, **kwargs)
-            except pymysql.OperationalError:
+            except pymysql.Error:
                 print("База данных временно недоступна")
                 return default_return
         return wrapper
