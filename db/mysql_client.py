@@ -15,7 +15,6 @@ class MySql:
         self.close()
 
 
-
     @logger_decorator
     def select(self, query, params=None):
         """
@@ -41,7 +40,7 @@ class MySql:
             self.connection.close()
 
 
-    def _ping(self):
+    def ping(self):
         if self.connection is None:
             return False
 
@@ -50,6 +49,7 @@ class MySql:
             return True
         except pymysql.Error:
             return False
+
 
     @staticmethod
     def _params_check(params):
