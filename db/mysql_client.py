@@ -2,17 +2,18 @@ import pymysql
 from film_logger import logger_decorator
 
 class MySql:
-    @logger_decorator
     def __init__(self, config):
-        self.connection = pymysql.connect(**config)
+        self.config = config
 
 
     def __enter__(self):
+        self.connection = pymysql.connect(**self.config)
         return self
 
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
 
 
     @logger_decorator
@@ -36,15 +37,18 @@ class MySql:
         """
         Закрывает соединение с базой данных.
         """
-        if self.connection.open:
+        if self.connection is not None and  self.connection.open:
             self.connection.close()
 
 
-    def ping(self):
+    def _ping(self):
+        if self.connection is None:
+            return False
+
         try:
             self.connection.ping(reconnect=True)
             return True
-        except Exception:
+        except pymysql.Error:
             return False
 
     @staticmethod

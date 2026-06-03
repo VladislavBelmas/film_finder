@@ -2,14 +2,14 @@ from pymongo import MongoClient
 from film_logger import logger_decorator
 
 class MongoDB:
-    @logger_decorator
     def __init__(self, config):
-        self.client = MongoClient(config["uri"], serverSelectionTimeoutMS=2000)
-        self.db = self.client[config["database"]]
-        self.collection = self.db[config["collection"]]
+        self.config = config
 
 
     def __enter__(self):
+        self.client = MongoClient(self.config["uri"], serverSelectionTimeoutMS=2000)
+        self.db = self.client[self.config["database"]]
+        self.collection = self.db[self.config["collection"]]
         return self
 
 
@@ -17,9 +17,11 @@ class MongoDB:
         self.close()
 
 
+
     @logger_decorator
     def close(self):
-        self.client.close()
+        if self.client is not None:
+            self.client.close()
 
 
     @logger_decorator
