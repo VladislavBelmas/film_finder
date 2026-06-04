@@ -7,8 +7,7 @@ from db.queries import (
     MAX_FILM_YEAR,
     FILMS,
     FILMS_SPECIFIC_YEAR,
-    FILMS_BY_CATEGORY,
-    FILMS_BY_ACTOR
+    FILMS_BY_CATEGORY
 )
 from film_logger import db_error_handler
 
@@ -20,12 +19,10 @@ class MovieRepository:
         self.mysql_db = mysql_db
         self.mongo_db = mongo_db
 
-
     @db_error_handler(default_return=[])
     def get_categories(self):
         """Возвращает список всех категорий фильмов."""
         return self.mysql_db.select(CATEGORIES)
-
 
     @db_error_handler(default_return=(1900, 2026))
     def years_range(self):
@@ -33,7 +30,6 @@ class MovieRepository:
         min_year = self.mysql_db.select(MIN_FILM_YEAR)[0]["min_year"]
         max_year = self.mysql_db.select(MAX_FILM_YEAR)[0]["max_year"]
         return min_year, max_year
-
 
     @db_error_handler(default_return=[])
     def get_films(self, title="", min_year=0, max_year=9999, limit=10, page=1):
@@ -52,8 +48,8 @@ class MovieRepository:
 
         if self.mongo_db:
             self.mongo_db.log({
-                "query_type" : "search_by_title",
-                "parameters" : {
+                "query_type": "search_by_title",
+                "parameters": {
                     "title": title,
                     "min_year": min_year,
                     "max_year": max_year,
@@ -65,7 +61,6 @@ class MovieRepository:
             })
 
         return films
-
 
     @db_error_handler(default_return=[])
     def get_films_by_specific_year(self, title="", year=None, limit=10, page=1):
@@ -83,8 +78,8 @@ class MovieRepository:
 
         if self.mongo_db:
             self.mongo_db.log({
-                "query_type" : "search_by_title_specific_year",
-                "parameters" : {
+                "query_type": "search_by_title_specific_year",
+                "parameters": {
                     "title": title,
                     "year": year,
                     "page": page,
@@ -95,7 +90,6 @@ class MovieRepository:
             })
 
         return films
-
 
     @db_error_handler(default_return=[])
     def get_films_by_category(self, title="", min_year=0, max_year=9999, category=None, limit=10, page=1):
@@ -115,8 +109,8 @@ class MovieRepository:
 
         if self.mongo_db:
             self.mongo_db.log({
-                "query_type" : "search_by_category",
-                "parameters" : {
+                "query_type": "search_by_category",
+                "parameters": {
                     "title": title,
                     "min_year": min_year,
                     "max_year": max_year,
@@ -130,12 +124,16 @@ class MovieRepository:
 
         return films
 
-
     @db_error_handler(default_return=[])
     def get_films_by_actor(self):
         """Поиск фильмов по актёру (в разработке)."""
         pass
 
+    def get_statistics(self):
+        """Возвращает статистику из MongoDB."""
+        if not self.mongo_db:
+            return None
+        return self.mongo_db.get_statistics()
 
     def _default_validator(self, title, page, limit):
         if page < 1:
@@ -148,7 +146,6 @@ class MovieRepository:
         offset = (page - 1) * limit
         pattern = f"{self._escape_like(title)}%" if title else "%"
         return pattern, limit, offset
-
 
     def _escape_like(self, s):
         return s.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')

@@ -21,4 +21,3 @@ MONGO_CONFIG = {
     "database": os.getenv("MONGO_DB"),
     "collection": os.getenv("MONGO_COLLECTION")
 }
-

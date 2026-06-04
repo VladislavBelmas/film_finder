@@ -9,10 +9,22 @@ from ui import Menu
 
 def main():
     """Запускает приложение для поиска фильмов."""
-    with MySql(MYSQL_CONFIG) as mysql, MongoDB(MONGO_CONFIG) as mongo:
+    with MySql(MYSQL_CONFIG) as mysql:
+        try:
+            mongo = MongoDB(MONGO_CONFIG).__enter__()
+        except Exception:
+            mongo = None
+            print("MongoDB недоступен, логирование отключено")
+
         repo = MovieRepository(mysql, mongo)
         menu = Menu(repo)
         menu.run()
+
+        if mongo:
+            try:
+                mongo.__exit__(None, None, None)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

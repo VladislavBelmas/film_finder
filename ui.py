@@ -30,7 +30,7 @@ class Menu:
             print(f"\n{'=' * Menu.DISPLAY_PAGE_LENGTH}")
             print(f"СТРАНИЦА {current_page}")
             print(f"{'=' * Menu.DISPLAY_PAGE_LENGTH}")
-            self.display_films(films)
+            self.display_films(films, current_page, limit)
 
             print(f"\n{'=' * Menu.DISPLAY_PAGE_LENGTH}")
             print("НАВИГАЦИЯ:")
@@ -66,7 +66,6 @@ class Menu:
             else:
                 print("\nНеверный выбор!")
 
-
     @staticmethod
     def _parse_years_and_pagination(params_str, default_min, default_max, default_page=1, default_limit=10):
         try:
@@ -80,7 +79,6 @@ class Menu:
             print("Неверный формат! Используются значения по умолчанию.")
             return default_min, default_max, default_page, default_limit
 
-
     @staticmethod
     def _parse_pagination(params_str, default_page=1, default_limit=10):
         try:
@@ -91,7 +89,6 @@ class Menu:
         except ValueError:
             print("Неверный формат! Используются значения по умолчанию.")
             return default_page, default_limit
-
 
     @staticmethod
     def show_main_menu():
@@ -105,12 +102,12 @@ class Menu:
         print("| 3. Поиск по категории   |")
         print("| 4.  Поиск по актеру     |")
         print("| 5. Показать категории   |")
-        print("| 6.       Выход          |")
+        print("| 6.    Статистика        |")
+        print("| 7.       Выход          |")
         print("|_________________________|")
         print()
         choice = input("--> Ваш выбор: ").strip()
         return choice
-
 
     def handle_choice(self, choice):
         """Обрабатывает выбор пользователя из главного меню."""
@@ -126,6 +123,8 @@ class Menu:
             case "5":
                 self.show_categories()
             case "6":
+                self.show_statistics()
+            case "7":
                 self.menu_exit()
             case _:
                 print("Неверный выбор!")
@@ -223,16 +222,83 @@ class Menu:
             limit=limit
         )
 
-
     def search_by_category(self):
-        """Поиск фильмов по категории (в разработке)."""
-        pass
+        """Поиск фильмов по категории."""
+        min_year_db, max_year_db = self.repo.years_range()
+        default_values = {
+            "min_year": min_year_db,
+            "max_year": max_year_db,
+            "page": 1,
+            "limit": 10
+        }
 
+        print("\n--- Поиск фильмов по категории ---")
+
+        categories = self.repo.get_categories()
+        if not categories:
+            print("Категории не найдены")
+            input("\nНажмите Enter для возврата в меню")
+            return
+
+        print(f"\nВсего категорий: {len(categories)}")
+        print("=" * Menu.DISPLAY_PAGE_LENGTH)
+        for i, category in enumerate(categories, 1):
+            print(f"{i:2}. {category['name']}")
+        print("=" * Menu.DISPLAY_PAGE_LENGTH)
+
+        category_choice = input("\nВведите номер или название категории: ").strip()
+
+        if category_choice.isdigit():
+            idx = int(category_choice) - 1
+            if 0 <= idx < len(categories):
+                category = categories[idx]['name']
+            else:
+                print("Неверный номер категории!")
+                input("\nНажмите Enter для возврата в меню")
+                return
+        else:
+            category = category_choice
+
+        print(f"Доступные годы: {min_year_db} - {max_year_db}")
+        title = input("Введите название фильма (Enter для всех): ").strip()
+        print("\nДополнительные параметры (формат: min_year max_year page limit)")
+        print("Пример: 2000 2020 1 10")
+        print("Нажмите ENTER для значений по умолчанию")
+        parameters = input("--> ").strip()
+
+        min_year, max_year, page, limit = self._parse_years_and_pagination(
+            parameters,
+            default_values["min_year"],
+            default_values["max_year"],
+            default_values["page"],
+            default_values["limit"]
+        )
+
+        if min_year > max_year:
+            print(f"min_year ({min_year}) > max_year ({max_year}). Приколов не будет, меняю местами.")
+            min_year, max_year = max_year, min_year
+
+        if min_year < min_year_db:
+            print(f"min_year ({min_year}) вне диапазона. Используется {min_year_db}.")
+            min_year = min_year_db
+
+        if max_year > max_year_db:
+            print(f"max_year ({max_year}) вне диапазона. Используется {max_year_db}.")
+            max_year = max_year_db
+
+        print(f"\nИщем: '{title or 'все фильмы'}' категории '{category}' ({min_year}-{max_year}), страница {page}")
+
+        search_params = (title, min_year, max_year, category)
+        self._paginate_result(
+            search_func=self.repo.get_films_by_category,
+            search_params=search_params,
+            current_page=page,
+            limit=limit
+        )
 
     def search_by_actor(self):
         """Поиск фильмов по актёру (в разработке)."""
         pass
-
 
     def show_categories(self):
         """Отображает список всех доступных категорий."""
@@ -244,23 +310,52 @@ class Menu:
             return
 
         print(f"\nВсего категорий: {len(categories)}")
-        print("=" * 40)
+        print("=" * Menu.DISPLAY_PAGE_LENGTH)
 
         for i, category in enumerate(categories, 1):
             print(f"{i:2}. {category['name']}")
 
-        print("=" * 40)
+        print("=" * Menu.DISPLAY_PAGE_LENGTH)
         input("\nНажмите Enter для возврата в меню")
 
+    def show_statistics(self):
+        """Отображает статистику запросов из MongoDB."""
+        print("\n--- Статистика поисковых запросов ---")
+
+        stats = self.repo.get_statistics()
+
+        if not stats:
+            print("Статистика недоступна (MongoDB отключен или нет данных)")
+            input("\nНажмите Enter для возврата в меню")
+            return
+
+        print(f"\nВсего запросов: {stats['total']}")
+        print("=" * Menu.DISPLAY_PAGE_LENGTH)
+
+        if stats['by_type']:
+            print("\nЗапросы по типам:")
+            for item in stats['by_type']:
+                query_type = item['_id'] or "неизвестно"
+                print(f"  {query_type}: {item['count']}")
+
+        if stats['top_titles']:
+            print("\nТоп-10 поисковых запросов:")
+            for i, item in enumerate(stats['top_titles'], 1):
+                print(f"  {i:2}. '{item['_id']}' — {item['count']} раз(а)")
+
+        print("=" * Menu.DISPLAY_PAGE_LENGTH)
+        input("\nНажмите Enter для возврата в меню")
 
     @staticmethod
-    def display_films(films):
+    def display_films(films, page=1, limit=10):
         """Отображает список фильмов."""
         if not films:
             print("Фильмы не найдены(")
             return
 
-        print(f"\nНайдено фильмов: {len(films)}")
+        start = (page - 1) * limit + 1
+        end = start + len(films) - 1
+        print(f"\nПоказаны фильмы {start}-{end} (на странице: {len(films)})")
         print("=" * Menu.DISPLAY_PAGE_LENGTH)
 
         for i, film in enumerate(films, 1):
@@ -275,12 +370,10 @@ class Menu:
                 print(f"   Описание: {film['description']}")
             print("-" * Menu.DISPLAY_PAGE_LENGTH)
 
-
     def menu_exit(self):
         """Выход из приложения."""
         print("\nПока!")
         self.running = False
-
 
     def run(self):
         """Запускает главный цикл меню."""
