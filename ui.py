@@ -341,7 +341,7 @@ class Menu:
                 print(f"  {query_type}: {item['count']}")
 
         if stats['top_titles']:
-            print("\nТоп-10 поисковых запросов:")
+            print("\nТоп-5 поисковых запросов:")
             for i, item in enumerate(stats['top_titles'], 1):
                 print(f"  {i:2}. '{item['_id']}' — {item['count']} раз(а)")
 

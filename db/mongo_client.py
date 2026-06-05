@@ -66,7 +66,7 @@ class MongoDB:
                 {"$match": {"parameters.title": {"$ne": ""}}},
                 {"$group": {"_id": "$parameters.title", "count": {"$sum": 1}}},
                 {"$sort": {"count": -1}},
-                {"$limit": 10}
+                {"$limit": 5}
             ]))
 
             return {
