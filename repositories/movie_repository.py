@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Any
 from db.mongo_client import MongoDB
 from db.mysql_client import MySql
 from db.queries import (
@@ -21,7 +21,7 @@ class MovieRepository:
         self.mongo_db = mongo_db
 
     @db_error_handler(default_return=[])
-    def get_categories(self) -> list[dict[str, any]]:
+    def get_categories(self) -> list[dict[str, Any]]:
         """Возвращает список всех категорий фильмов."""
         return self.mysql_db.select(CATEGORIES)
 
@@ -34,7 +34,7 @@ class MovieRepository:
 
     @db_error_handler(default_return=[])
     def get_films(self, title: str = "", min_year: int = 0, max_year: int = 9999,
-                  limit: int = 10, page: int = 1) -> list[dict[str, any]]:
+                  limit: int = 10, page: int = 1) -> list[dict[str, Any]]:
         """
         Поиск фильмов по названию и диапазону лет.
 
@@ -66,7 +66,7 @@ class MovieRepository:
 
     @db_error_handler(default_return=[])
     def get_films_by_specific_year(self, title: str = "", year: Optional[int] = None,
-                                    limit: int = 10, page: int = 1) -> list[dict[str, any]]:
+                                    limit: int = 10, page: int = 1) -> list[dict[str, Any]]:
         """
         Поиск фильмов по названию и конкретному году выпуска.
 
@@ -96,7 +96,7 @@ class MovieRepository:
 
     @db_error_handler(default_return=[])
     def get_films_by_category(self, title: str = "", min_year: int = 0, max_year: int = 9999,
-                               category: Optional[str] = None, limit: int = 10, page: int = 1) -> list[dict[str, any]]:
+                               category: Optional[str] = None, limit: int = 10, page: int = 1) -> list[dict[str, Any]]:
         """
         Поиск фильмов по категории, названию и диапазону лет.
 
@@ -129,11 +129,11 @@ class MovieRepository:
         return films
 
     @db_error_handler(default_return=[])
-    def get_films_by_actor(self) -> list[dict[str, any]]:
+    def get_films_by_actor(self) -> list[dict[str, Any]]:
         """Поиск фильмов по актёру (в разработке)."""
         return []
 
-    def get_statistics(self) -> Optional[dict[str, any]]:
+    def get_statistics(self) -> Optional[dict[str, Any]]:
         """Возвращает статистику из MongoDB."""
         if not self.mongo_db:
             return None

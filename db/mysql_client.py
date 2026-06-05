@@ -1,12 +1,12 @@
 import pymysql
-from typing import Optional, Union
+from typing import Optional, Union, Any
 from film_logger import logger_decorator
 
 
 class MySql:
     """MySQL клиент с поддержкой context manager для управления соединением."""
 
-    def __init__(self, config: dict[str, any]) -> None:
+    def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
         self.connection = None
 
@@ -14,11 +14,11 @@ class MySql:
         self.connection = pymysql.connect(**self.config)
         return self
 
-    def __exit__(self, exc_type: any, exc_val: any, exc_tb: any) -> None:
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self.close()
 
     @logger_decorator
-    def select(self, query: str, params: Optional[Union[tuple, list, dict]] = None) -> list[dict[str, any]]:
+    def select(self, query: str, params: Optional[Union[tuple, list, dict]] = None) -> list[dict[str, Any]]:
         """
         Выполняет SQL запрос SELECT.
 
