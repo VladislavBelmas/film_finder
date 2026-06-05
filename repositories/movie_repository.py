@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from db.mongo_client import MongoDB
 from db.mysql_client import MySql
 from db.queries import (
@@ -15,24 +16,25 @@ from film_logger import db_error_handler
 class MovieRepository:
     """Репозиторий для работы с данными фильмов из MySQL и логирования в MongoDB."""
 
-    def __init__(self, mysql_db: MySql, mongo_db: MongoDB):
+    def __init__(self, mysql_db: MySql, mongo_db: Optional[MongoDB]) -> None:
         self.mysql_db = mysql_db
         self.mongo_db = mongo_db
 
     @db_error_handler(default_return=[])
-    def get_categories(self):
+    def get_categories(self) -> list[dict[str, any]]:
         """Возвращает список всех категорий фильмов."""
         return self.mysql_db.select(CATEGORIES)
 
     @db_error_handler(default_return=(1900, 2026))
-    def years_range(self):
+    def years_range(self) -> tuple[int, int]:
         """Возвращает диапазон годов выпуска фильмов в базе (min_year, max_year)."""
         min_year = self.mysql_db.select(MIN_FILM_YEAR)[0]["min_year"]
         max_year = self.mysql_db.select(MAX_FILM_YEAR)[0]["max_year"]
         return min_year, max_year
 
     @db_error_handler(default_return=[])
-    def get_films(self, title="", min_year=0, max_year=9999, limit=10, page=1):
+    def get_films(self, title: str = "", min_year: int = 0, max_year: int = 9999,
+                  limit: int = 10, page: int = 1) -> list[dict[str, any]]:
         """
         Поиск фильмов по названию и диапазону лет.
 
@@ -63,7 +65,8 @@ class MovieRepository:
         return films
 
     @db_error_handler(default_return=[])
-    def get_films_by_specific_year(self, title="", year=None, limit=10, page=1):
+    def get_films_by_specific_year(self, title: str = "", year: Optional[int] = None,
+                                    limit: int = 10, page: int = 1) -> list[dict[str, any]]:
         """
         Поиск фильмов по названию и конкретному году выпуска.
 
@@ -92,7 +95,8 @@ class MovieRepository:
         return films
 
     @db_error_handler(default_return=[])
-    def get_films_by_category(self, title="", min_year=0, max_year=9999, category=None, limit=10, page=1):
+    def get_films_by_category(self, title: str = "", min_year: int = 0, max_year: int = 9999,
+                               category: Optional[str] = None, limit: int = 10, page: int = 1) -> list[dict[str, any]]:
         """
         Поиск фильмов по категории, названию и диапазону лет.
 
@@ -125,17 +129,18 @@ class MovieRepository:
         return films
 
     @db_error_handler(default_return=[])
-    def get_films_by_actor(self):
+    def get_films_by_actor(self) -> list[dict[str, any]]:
         """Поиск фильмов по актёру (в разработке)."""
-        pass
+        return []
 
-    def get_statistics(self):
+    def get_statistics(self) -> Optional[dict[str, any]]:
         """Возвращает статистику из MongoDB."""
         if not self.mongo_db:
             return None
         return self.mongo_db.get_statistics()
 
-    def _default_validator(self, title, page, limit):
+    def _default_validator(self, title: str, page: int, limit: int) -> tuple[str, int, int]:
+        """Валидирует и нормализует параметры запроса."""
         if page < 1:
             page = 1
         if limit < 1:
@@ -147,5 +152,6 @@ class MovieRepository:
         pattern = f"{self._escape_like(title)}%" if title else "%"
         return pattern, limit, offset
 
-    def _escape_like(self, s):
+    def _escape_like(self, s: str) -> str:
+        """Экранирует специальные символы для SQL LIKE."""
         return s.replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')

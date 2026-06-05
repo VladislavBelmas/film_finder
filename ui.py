@@ -1,4 +1,4 @@
-
+from typing import List, Dict, Any, Tuple, Callable
 from repositories.movie_repository import MovieRepository
 
 
@@ -8,12 +8,13 @@ class Menu:
     DESCRIPTION_MAX_LENGTH = 67
     DISPLAY_PAGE_LENGTH = 80
 
-    def __init__(self, repo: MovieRepository):
+    def __init__(self, repo: MovieRepository) -> None:
         self.repo = repo
         self.running = True
 
-    def _paginate_result(self, search_func, search_params, current_page, limit):
-
+    def _paginate_result(self, search_func: Callable[..., List[Dict[str, Any]]], search_params: Tuple[Any, ...],
+                         current_page: int, limit: int) -> None:
+        """Обрабатывает пагинацию результатов поиска."""
         while True:
             films = search_func(*search_params, limit=limit, page=current_page)
 
@@ -67,7 +68,8 @@ class Menu:
                 print("\nНеверный выбор!")
 
     @staticmethod
-    def _parse_years_and_pagination(params_str, default_min, default_max, default_page=1, default_limit=10):
+    def _parse_years_and_pagination(params_str: str, default_min: int, default_max: int,
+                                     default_page: int = 1, default_limit: int = 10) -> Tuple[int, int, int, int]:
         try:
             params = params_str.split()
             min_year = int(params[0]) if len(params) >= 1 else default_min
@@ -80,7 +82,7 @@ class Menu:
             return default_min, default_max, default_page, default_limit
 
     @staticmethod
-    def _parse_pagination(params_str, default_page=1, default_limit=10):
+    def _parse_pagination(params_str: str, default_page: int = 1, default_limit: int = 10) -> Tuple[int, int]:
         try:
             params = params_str.split()
             page = int(params[0]) if len(params) >= 1 else default_page
@@ -91,7 +93,7 @@ class Menu:
             return default_page, default_limit
 
     @staticmethod
-    def show_main_menu():
+    def show_main_menu() -> str:
         """Отображает главное меню и возвращает выбор пользователя."""
         print(" _________________________ ")
         print("|       FILM FINDER       |")
@@ -109,7 +111,7 @@ class Menu:
         choice = input("--> Ваш выбор: ").strip()
         return choice
 
-    def handle_choice(self, choice):
+    def handle_choice(self, choice: str) -> None:
         """Обрабатывает выбор пользователя из главного меню."""
         match choice:
             case "1":
@@ -129,7 +131,7 @@ class Menu:
             case _:
                 print("Неверный выбор!")
 
-    def search_films(self):
+    def search_films(self) -> None:
         """Поиск фильмов по названию и диапазону лет."""
         min_year_db, max_year_db = self.repo.years_range()
         default_values = {
@@ -177,7 +179,7 @@ class Menu:
             limit=limit
         )
 
-    def search_by_specific_year(self):
+    def search_by_specific_year(self) -> None:
         """Поиск фильмов по названию и конкретному году."""
         min_year_db, max_year_db = self.repo.years_range()
         default_values = {
@@ -222,7 +224,7 @@ class Menu:
             limit=limit
         )
 
-    def search_by_category(self):
+    def search_by_category(self) -> None:
         """Поиск фильмов по категории."""
         min_year_db, max_year_db = self.repo.years_range()
         default_values = {
@@ -296,11 +298,11 @@ class Menu:
             limit=limit
         )
 
-    def search_by_actor(self):
+    def search_by_actor(self) -> None:
         """Поиск фильмов по актёру (в разработке)."""
         pass
 
-    def show_categories(self):
+    def show_categories(self) -> None:
         """Отображает список всех доступных категорий."""
         print("\n--- Доступные категории ---")
         categories = self.repo.get_categories()
@@ -318,7 +320,7 @@ class Menu:
         print("=" * Menu.DISPLAY_PAGE_LENGTH)
         input("\nНажмите Enter для возврата в меню")
 
-    def show_statistics(self):
+    def show_statistics(self) -> None:
         """Отображает статистику запросов из MongoDB."""
         print("\n--- Статистика поисковых запросов ---")
 
@@ -347,7 +349,7 @@ class Menu:
         input("\nНажмите Enter для возврата в меню")
 
     @staticmethod
-    def display_films(films, page=1, limit=10):
+    def display_films(films: List[Dict[str, Any]], page: int = 1, limit: int = 10) -> None:
         """Отображает список фильмов."""
         if not films:
             print("Фильмы не найдены(")
@@ -370,12 +372,12 @@ class Menu:
                 print(f"   Описание: {film['description']}")
             print("-" * Menu.DISPLAY_PAGE_LENGTH)
 
-    def menu_exit(self):
+    def menu_exit(self) -> None:
         """Выход из приложения."""
         print("\nПока!")
         self.running = False
 
-    def run(self):
+    def run(self) -> None:
         """Запускает главный цикл меню."""
         while self.running:
             choice = self.show_main_menu()

@@ -1,22 +1,24 @@
 import pymysql
+from typing import Optional, Union
 from film_logger import logger_decorator
 
 
 class MySql:
     """MySQL клиент с поддержкой context manager для управления соединением."""
 
-    def __init__(self, config):
+    def __init__(self, config: dict[str, any]) -> None:
         self.config = config
+        self.connection = None
 
-    def __enter__(self):
+    def __enter__(self) -> 'MySql':
         self.connection = pymysql.connect(**self.config)
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exc_type: any, exc_val: any, exc_tb: any) -> None:
         self.close()
 
     @logger_decorator
-    def select(self, query, params=None):
+    def select(self, query: str, params: Optional[Union[tuple, list, dict]] = None) -> list[dict[str, any]]:
         """
         Выполняет SQL запрос SELECT.
 
@@ -31,12 +33,12 @@ class MySql:
             return cursor.fetchall()
 
     @logger_decorator
-    def close(self):
+    def close(self) -> None:
         """Закрывает соединение с базой данных."""
         if self.connection is not None and self.connection.open:
             self.connection.close()
 
-    def ping(self):
+    def ping(self) -> bool:
         """Проверяет активность соединения с базой данных."""
         if self.connection is None:
             return False
@@ -48,7 +50,7 @@ class MySql:
             return False
 
     @staticmethod
-    def _params_check(params):
+    def _params_check(params: Optional[Union[tuple, list, dict]]) -> None:
         if params is None:
             return
 

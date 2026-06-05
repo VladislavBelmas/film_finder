@@ -1,6 +1,7 @@
 """Конфигурация подключений к базам данных MySQL и MongoDB."""
 
 import os
+from typing import Any
 from dotenv import load_dotenv
 import pymysql
 
